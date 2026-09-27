@@ -1,0 +1,114 @@
+{
+  "name": "omni-extractor-desktop",
+  "version": "1.0.0",
+  "description": "万能萃取助手 - 桌面专业版客户端（支持抖音/快手/小红书/B站/微博无水印提取）",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:all": "electron-builder --win --mac"
+  },
+  "keywords": [
+    "desktop-app",
+    "extractor",
+    "electron",
+    "opengraph",
+    "windows",
+    "macos"
+  ],
+  "author": "OmniExtractor Desktop Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0"
+  },
+  "devDependencies": {
+    "electron": "^34.5.8",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.omniextractor.desktop",
+    "productName": "万能萃取助手",
+    "copyright": "Copyright © 2026 OmniExtractor Desktop Team",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/test/**",
+      "!node_modules/**/docs/**",
+      "!node_modules/**/*.md",
+      "!node_modules/**/LICENSE*",
+      "!node_modules/**/CHANGELOG*"
+    ],
+    "extraResources": [
+      {
+        "from": "data",
+        "to": "data",
+        "filter": [
+          "!history.json"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": null,
+      "artifactName": "万能萃取助手_v${version}_Win_Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "万能萃取助手",
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": null,
+      "category": "public.app-category.utilities",
+      "artifactName": "万能萃取助手_v${version}_Mac_${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "万能萃取助手 v${version}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  }
+}

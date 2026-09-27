@@ -1,0 +1,63 @@
+name: 打包发布 - Win + Mac 安装包
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  # ==================== Windows 打包 ====================
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 打包 Windows 安装包
+        run: npx electron-builder --win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 上传 Windows 安装包
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows-安装包
+          path: |
+            release/*.exe
+          retention-days: 30
+
+  # ==================== macOS 打包 ====================
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 打包 macOS DMG 安装包 (Intel + Apple Silicon)
+        run: npx electron-builder --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 上传 macOS 安装包
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mac-安装包
+          path: |
+            release/*.dmg
+          retention-days: 30

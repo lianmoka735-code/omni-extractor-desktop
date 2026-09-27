@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>万能萃取助手 - 桌面版</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- 桌面版顶部应用栏 -->
+  <header class="desktop-header">
+    <div class="brand">
+      <div class="logo-badge">⚡ OmniExtractor</div>
+      <div class="version-tag">桌面专业版 v3.0 (后台全自动无水印提取)</div>
+    </div>
+    <div class="header-right">
+      <div class="security-chip">
+        <span class="dot-live"></span>
+        <span>后台静默嗅探已就绪</span>
+      </div>
+      <button id="toggle-history-btn" class="nav-btn">
+        <span class="icon">🕒</span> 历史记录 (<span id="history-count">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- 主布局：双栏桌面工作台 -->
+  <main class="workbench">
+    <!-- 左侧：输入与操作控制台 -->
+    <section class="panel input-panel">
+      <div class="panel-header">
+        <h2>输入视频链接或分享文本</h2>
+        <div class="quick-tools">
+          <button id="paste-btn" class="tool-btn" title="从剪贴板读取并粘贴">
+            <span>📋</span> 粘贴剪贴板
+          </button>
+          <button id="clear-btn" class="tool-btn danger" title="清空输入框 (Ctrl+L)">
+            <span>✕</span> 清空
+          </button>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <textarea
+          id="main-input"
+          placeholder="在此直接粘贴抖音、快手、小红书、B站、微博分享文案或任意网页链接...&#10;&#10;系统将在后台全自动完成重定向、动态解码与无水印媒体提取，解析后您只需点击下载即可！"
+        ></textarea>
+        <div class="input-stat-bar">
+          <span id="char-counter">0 字符</span>
+          <span class="keyboard-tip">快捷键: Ctrl + Enter 立即提取</span>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button id="extract-btn" class="primary-btn">
+          <span class="btn-icon">🚀</span>
+          <span class="btn-text">一键提取 / 开始解析</span>
+        </button>
+      </div>
+
+      <!-- 支持平台徽章 -->
+      <div class="platform-support-bar">
+        <span class="support-title">支持平台智能识别：</span>
+        <div class="platform-tags">
+          <span class="p-tag">抖音/TikTok</span>
+          <span class="p-tag">快手</span>
+          <span class="p-tag">小红书</span>
+          <span class="p-tag">哔哩哔哩</span>
+          <span class="p-tag">微博</span>
+          <span class="p-tag">通用网页</span>
+        </div>
+      </div>
+
+      <div class="compliance-box">
+        <div class="comp-title">🛡️ 合规自律与知识产权声明</div>
+        <p>本客户端为合法合规的公开网页元数据与流媒体解析提取工具，请尊重原平台著作权与创作者版权，下载资源仅供个人学习交流使用。</p>
+      </div>
+    </section>
+
+    <!-- 右侧：解析结果展示区 -->
+    <section class="panel result-panel">
+      <!-- 初始空状态 -->
+      <div id="empty-state" class="empty-view">
+        <div class="empty-art">🎬</div>
+        <h3>等待提取解析任务</h3>
+        <p>在左侧粘贴分享文案或链接，点击「一键提取」，系统将在后台全自动完成分析，完成后您直接点击绿色下载按钮即可保存到电脑！</p>
+      </div>
+
+      <!-- 加载中状态 -->
+      <div id="loading-state" class="loading-view hidden">
+        <div class="spinner"></div>
+        <p id="loading-text">正在后台全自动分析并提取无水印视频资源，请稍候...</p>
+      </div>
+
+      <!-- 核心结果展示容器 -->
+      <div id="result-container" class="result-content hidden">
+        <!-- 结果顶部工具栏 -->
+        <div class="result-meta-bar">
+          <div class="meta-left">
+            <span id="res-platform-badge" class="mode-badge platform-badge">平台: 抖音</span>
+            <span id="result-duration" class="duration-chip">耗时: 0ms</span>
+          </div>
+          <div class="meta-right">
+            <button id="copy-all-btn" class="secondary-btn">复制文案信息</button>
+            <button id="open-browser-btn" class="secondary-btn">浏览器打开原网页</button>
+          </div>
+        </div>
+
+        <!-- 标题与作品描述 -->
+        <div class="result-card title-card">
+          <div class="card-title-row">
+            <label class="card-label">文案标题 / 作品描述</label>
+            <span id="res-author" class="author-tag">来源: 抖音</span>
+          </div>
+          <div id="res-title" class="title-value selectable">--</div>
+          <div class="site-row">
+            <span class="site-tag" id="res-site">--</span>
+            <span class="domain-tag" id="res-domain">--</span>
+          </div>
+        </div>
+
+        <!-- 视频专区 (包含播放器与一键下载大按钮) -->
+        <div id="video-card" class="result-card video-card-block">
+          <div class="card-title-row">
+            <label class="card-label highlight-label">🎬 无水印视频资源</label>
+            <span id="video-status-tag" class="tag-status">已就绪</span>
+          </div>
+          
+          <!-- 视频播放器 -->
+          <div id="video-player-wrap" class="video-player-wrap">
+            <video id="res-video-player" controls preload="metadata" playsinline></video>
+          </div>
+
+          <!-- 核心下载按钮 -->
+          <div class="download-action-bar">
+            <button id="download-video-btn" class="download-btn-main">
+              <span class="icon">⬇️</span>
+              <span>立即下载无水印视频 (MP4)</span>
+            </button>
+            <button id="copy-video-url-btn" class="mini-btn">
+              复制视频直链
+            </button>
+          </div>
+        </div>
+
+        <!-- 图集批量下载专区 (当存在多张图片时展示) -->
+        <div id="album-card" class="result-card hidden">
+          <div class="card-title-row">
+            <label class="card-label highlight-label">🖼️ 高清图集作品 (<span id="album-count">0</span> 张)</label>
+            <button id="download-all-images-btn" class="download-btn-main small">
+              <span class="icon">⬇️</span>
+              <span>一键批量下载所有图片到文件夹</span>
+            </button>
+          </div>
+          <div id="album-grid" class="album-grid">
+            <!-- 动态填充图片网格 -->
+          </div>
+        </div>
+
+        <!-- 背景音频/音乐下载专区 -->
+        <div id="music-card" class="result-card hidden">
+          <div class="card-title-row">
+            <label class="card-label">🎵 背景音乐伴奏 (MP3)</label>
+            <button id="download-music-btn" class="mini-btn highlight">
+              <span>⬇️</span> 下载音频伴奏
+            </button>
+          </div>
+          <div class="audio-wrap">
+            <audio id="res-audio-player" controls></audio>
+          </div>
+        </div>
+
+        <!-- 封面图专区 -->
+        <div id="cover-card" class="result-card hidden">
+          <div class="card-title-row">
+            <label class="card-label">🖼️ 高清封面图</label>
+            <div class="cover-btns">
+              <button id="copy-cover-btn" class="mini-btn">复制封面直链</button>
+              <button id="save-cover-btn" class="mini-btn highlight">⬇️ 下载封面原图</button>
+            </div>
+          </div>
+          <div class="cover-img-wrap">
+            <img id="res-cover-img" src="" alt="封面预览" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 历史记录侧边滑出抽屉 -->
+  <aside id="history-drawer" class="drawer hidden">
+    <div class="drawer-header">
+      <h3>提取历史记录</h3>
+      <div class="drawer-actions">
+        <button id="clear-all-history-btn" class="tool-btn danger">清空全部</button>
+        <button id="close-drawer-btn" class="tool-btn">✕ 关闭</button>
+      </div>
+    </div>
+    <div id="history-list" class="drawer-body">
+      <!-- 动态插入历史条目 -->
+    </div>
+  </aside>
+
+  <!-- 遮罩层 -->
+  <div id="drawer-overlay" class="overlay hidden"></div>
+
+  <!-- 轻量全局通知浮层 -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
