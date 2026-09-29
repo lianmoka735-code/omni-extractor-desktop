@@ -56,7 +56,7 @@ ipcMain.handle('api:extract', async (event, content) => {
     // 智能后台静默补全：若属于复杂动态流/短视频，且静态 HTTP 未获直链，则在后台无缝静默捕获
     if (result.mode === 'url' && !result.videoUrl && result.targetUrl) {
       console.log('[Main] 自动启动后台静默嗅探补全:', result.targetUrl);
-      const bgCaptured = await captureMediaInBackground(result.targetUrl, 9000);
+      const bgCaptured = await captureMediaInBackground(result.targetUrl, 15000);
       if (bgCaptured && bgCaptured.videoUrl) {
         result.videoUrl = bgCaptured.videoUrl;
         if (!result.coverImage && bgCaptured.cover) result.coverImage = bgCaptured.cover;

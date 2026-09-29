@@ -3,7 +3,7 @@ const { BrowserWindow } = require('electron');
 /**
  * 后台静默无头媒体捕获引擎 (无需用户干预，全自动后台嗅探视频源)
  */
-function captureMediaInBackground(targetUrl, timeoutMs = 8000) {
+function captureMediaInBackground(targetUrl, timeoutMs = 15000) {
   return new Promise((resolve) => {
     let hasResolved = false;
     let snifferWin = null;
@@ -120,7 +120,21 @@ function captureMediaInBackground(targetUrl, timeoutMs = 8000) {
               })()
             `).catch(() => {});
           } catch (e) {}
-        }, 1200);
+        }, 500);
+
+        // 二次重试：3秒后再次尝试触发播放（应对慢加载页面）
+        setTimeout(async () => {
+          if (!snifferWin || snifferWin.isDestroyed() || hasResolved) return;
+          try {
+            await snifferWin.webContents.executeJavaScript(`
+              (() => {
+                const videos = document.querySelectorAll('video');
+                videos.forEach(v => { v.muted = true; v.play().catch(() => {}); });
+                document.querySelectorAll('[class*="play"], .play-btn, button').forEach(b => b.click());
+              })()
+            `).catch(() => {});
+          } catch (e) {}
+        }, 3000);
       }).catch((err) => {
         console.warn('[HeadlessSniffer] 加载链接异常:', err.message);
       });
